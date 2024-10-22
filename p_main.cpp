@@ -1,31 +1,25 @@
 #include"ScanTheOS.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <thread> 
-#include <chrono>
+#include"Map.h"
 
-const char MAPX=0x10,MAPY=0x40; 
-enum class Movement:char{ up , down , left , right};
-
-void intiMap(char** Map, char* player);
-inline void ShowMap(char** Map),FoodGenerate(char** Map),PlayerMovement(char** Map, char* player, Movement move);
-
+inline void PlayerMovement(char** Map,char* player,const Movement move,short&length),
+SnakeLocationResize(char*player,short &length,bool snakesizeadd,char**Map);
+snakebody *Snakebody=nullptr;snakebody *tempsnake=nullptr;
 
 int main() {
-    bool  AddingFood = 1;
-    // player[0] -> x, player[1] -> y, player[2] -> SnakeBottonX, player[3] -> SnakeBottemY
-    char* player = new char[4];char** Map = new char*[MAPX];
+    bool *AddingFood = new bool[2];AddingFood[0]=AddingFood[1]=1;
+    // player[0] -> x, player[1] -> y
+    char* player = new char[2];char** Map = new char*[MAPX];
     Movement PlayerMove;char ch;
     for (int i = 0; i < MAPX; i++) Map[i] = new char[MAPY];
-
+    bool gaming=1;short length = 1;
     srand(time(NULL));
     player[0] = rand() % (MAPX - 2) + 1;player[1] = rand() % (MAPY - 2) + 1;
-    intiMap(Map, player);
-    ShowMap(Map);printf("\npress WASD or narrow to move");
-    while (!_kbhit()){}
-    ch=_getch();
-    while (1) {
+    Snakebody=new snakebody[length];
+    Snakebody[1].X=player[0];Snakebody[1].Y=player[1];
+
+    intiMap(Map, player);ShowMap(Map);printf("\npress WASD or narrow to move");
+    while (!_kbhit()){}ch=_getch();
+    while (gaming||length!=MAXOFMAP) {
         if(_kbhit()){
             ch = _getch();
             switch (ch) {
@@ -44,49 +38,44 @@ int main() {
                 }
             }
         }
-        PlayerMovement(Map, player, PlayerMove);
-        system("cls");ShowMap(Map);
-        if (AddingFood) FoodGenerate(Map);
-        AddingFood = !AddingFood;
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        PlayerMovement(Map, player, PlayerMove,length);
+        system("cls");
+        MapRefresh(Map,Snakebody,length);
+        ShowMap(Map);
+        (!AddingFood[0])?AddingFood[0]=1:AddingFood[1]=1;
+        if(AddingFood[0]==AddingFood[1]==1){FoodGenerate(Map);AddingFood[0]=AddingFood[1]=0;}
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     for (int i = 0; i < MAPX; ++i) delete[] Map[i];
-    delete[] Map; delete[] player;
-    system("pause");
-}
-
-inline void ShowMap(char** Map) {for(int i=0;i<MAPX;i++){for(int j=0;j<MAPY;j++){printf("%c",Map[i][j]);}printf("\n");}}
-
-/*intilization Map / 初始化地圖*/
-void intiMap(char** Map, char* player) {
-    for (int i = 0; i < MAPX; i++) {for (int j= 0;j<MAPY;j++){(i==0||i==MAPX-1||j==0||j==MAPY-1)?Map[i][j]='#':Map[i][j]=' ';}}
-    Map[player[0]][player[1]] = 'P'; 
+    delete[] Map; delete[] player;system("pause");
 }
 
 /*player move / 玩家移動*/
-inline void PlayerMovement(char** Map, char* player, Movement move) {
-    player[2] = player[0];player[3] = player[1];
+inline void PlayerMovement(char** Map, char* player,const Movement move,short&length) {
+    bool snakesizeadd=0;
     switch (move) {
-        case Movement::up: player[0] -= 1;      break;
-        case Movement::down: player[0] += 1;    break;
-        case Movement::left: player[1] -= 1;    break;
-        case Movement::right: player[1] += 1;   break;
+        case Movement::up:      if(Map[player[0]-1][player[1]]=='.'){snakesizeadd=1;}player[0] -= 1;break;
+        case Movement::down:    if(Map[player[0]+1][player[1]]=='.'){snakesizeadd=1;}player[0] += 1;break;
+        case Movement::left:    if(Map[player[0]][player[1]-1]=='.'){snakesizeadd=1;}player[1] -= 1;break;
+        case Movement::right:   if(Map[player[0]][player[1]+1]=='.'){snakesizeadd=1;}player[1] += 1;break;
     }
+    SnakeLocationResize(player,length,snakesizeadd,Map);
     if (player[0]==0||player[0]==MAPX-1||player[1]==0||player[1]==MAPY-1||Map[player[0]][player[1]]=='P') {
-        printf("Game Over!\n");
-        for (int i = 0; i < MAPX; ++i) delete[] Map[i];
+        printf("Game Over!\n");for (int i = 0; i < MAPX; ++i) delete[] Map[i];
         delete[] Map;delete[] player;exit(0); 
     }
     Map[player[0]][player[1]] = 'P';
 }
-
-/*generate the food*/
-inline void FoodGenerate(char** Map) {
-    char *FoodLocation = new char[2];
-    
-    do {FoodLocation[0] = rand() % (MAPX - 2) + 1; FoodLocation[1] = rand() % (MAPY - 2) + 1;}
-    while (Map[FoodLocation[0]][FoodLocation[1]] == 'P' || Map[FoodLocation[0]][FoodLocation[1]] == '#');
-    
-    Map[FoodLocation[0]][FoodLocation[1]] = '.';
-    delete[] FoodLocation;
+/*Ensure the Size of Snake & Resize The Length / 確認蛇身的長度&讓蛇的長度變長*/
+inline void SnakeLocationResize(char*player,short &length,bool snakesizeadd,char**Map){
+    if(snakesizeadd)++length;
+    tempsnake=new snakebody[length];
+    for(int i=0;i<length-1;i++){tempsnake[i+1].X=Snakebody[i].X;tempsnake[i+1].Y=Snakebody[i].Y;}
+    tempsnake[0].X=player[0];tempsnake[0].Y=player[1];
+    if(Snakebody!=nullptr){
+        /*I Ain't Fucking Microsoft But Right Now I Just Won't To Fuck It
+          PLZ Tell Me Why The Line Below is Executing Error*/ 
+        delete[]Snakebody;
+        Snakebody=nullptr; Snakebody=tempsnake; tempsnake=nullptr;
+    }
 }
