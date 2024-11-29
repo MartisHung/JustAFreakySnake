@@ -21,7 +21,7 @@ inline void SnakeBody::Rerecord(const bool SnakeSizeAdd,const SnakeLocate temp){
     if(SnakeSizeAdd){
         length++;
         SnakeLocate*TempSnake=new SnakeLocate[length];
-        for(int i=0;i<length;i++){TempSnake[i+1].x=body[i].x;TempSnake[i+1].y=body[i].y;}
+        for(int i=0;i<length-1;i++){TempSnake[i+1].x=body[i].x;TempSnake[i+1].y=body[i].y;}
         TempSnake[0].x = temp.x;TempSnake[0].y = temp.y;
         delete[] body; body = TempSnake;
     }
