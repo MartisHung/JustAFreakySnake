@@ -49,7 +49,7 @@ g++ p_main.cpp Map.cpp -o Snake.Game
 ```sh
 clang++ -g p_main.cpp Map.cpp -o Snake.Game
 ```  
-- Execute 執行
+## Execute 執行
 ```sh
 ./Snake.Game
 ```
