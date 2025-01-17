@@ -10,7 +10,6 @@ int main() {
     char** Map = new char*[MAPX];
     for (int i = 0; i < MAPX; i++) Map[i] = new char[MAPY+1];
     SnakeBody*Player = new SnakeBody(1);
-    // SnakeBody*Enemy = new SnakeBody(1);
     Movement PlayerMove;
     bool SnakeSizeAdd;
     SnakeLocate temp;
@@ -74,7 +73,7 @@ inline void PlayerKeydown(char ch,Movement&PlayerMove){
         case 's': PlayerMove = Movement::down;  break;
         case 'd': PlayerMove = Movement::right; break;
         case -32:{
-            ch = _getch();/*narrow*/
+            ch = _getch();
             switch (ch) {
                 case 72: PlayerMove = Movement::up;   break;
                 case 80: PlayerMove = Movement::down; break;

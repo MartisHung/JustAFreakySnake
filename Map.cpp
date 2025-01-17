@@ -1,21 +1,6 @@
 //Map.cpp
-#include <stdio.h>
-#include <stdlib.h>
-#include <thread> 
-#include <chrono>
-#include <iostream>
-const char MAPX=0x10 , MAPY=0x40;const short MAXOFMAP=868;
+#include "Map.cpp"
 
-struct SnakeLocate{char x,y;};
-
-class SnakeBody{
-    public:
-        SnakeLocate*body;
-        short length;
-        SnakeBody(short length):length(length){body=new SnakeLocate[length];}
-        ~SnakeBody(){delete[] body;body=nullptr;}
-        inline void Rerecord(const bool SnakeSizeAdd,const SnakeLocate temp);
-};
 
 inline void SnakeBody::Rerecord(const bool SnakeSizeAdd,const SnakeLocate temp){
     if(SnakeSizeAdd){
