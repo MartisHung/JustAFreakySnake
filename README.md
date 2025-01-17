@@ -21,7 +21,7 @@ https://github.com/MartisHung/RedoingSnake/
 
 ## Download 下載
 ```sh
-git clone https://github.com/MartisHung/RedoingSnake.git
+git clone https://github.com/MartisHung/JustAFreakySnake.git
 ```
 ## cd the project 切入檔案
 ```sh
